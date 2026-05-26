@@ -1,6 +1,7 @@
 {
   "name": "villa-web",
   "version": "0.1.0",
+  "description": "Eyleniyoruz Villam'da lüks villa kiralama platformu",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
