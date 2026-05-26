@@ -40,5 +40,15 @@ Bu proje; kullanıcı dostu arayüz, modern tasarım, responsive yapı ve Fireba
 
 Projeyi bilgisayarınıza klonlayın:
 
-```bash
 git clone https://github.com/dogukansendogan/eylenweb.git
+
+ardından terminalinizde;
+
+cd eylenweb
+
+npm install
+
+npm run dev
+
+http://localhost:3000 adresini açın
+
