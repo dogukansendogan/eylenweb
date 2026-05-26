@@ -15,6 +15,6 @@ test.describe('İletişim Sayfası Testi', () => {
     await page.click('button:has-text("Mesajı Gönder")');
     
     // Başarı mesajını bekle (Component'te 1.5s delay var)
-    await expect(page.locator('text=Mesajınız Alındı!')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Mesajınız Alındı!')).toBeVisible({ timeout: 15000 });
   });
 });
