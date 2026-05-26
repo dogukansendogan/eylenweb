@@ -19,17 +19,40 @@ export interface Reservation {
 }
 
 // Tarihler arasındaki tüm günleri hesaplayan yardımcı fonksiyon
+// GİRİŞ tarihi dahil, ÇIKIŞ tarihi HARİÇ (çıkış günü başka misafirin giriş günü olabilir)
 const getDatesInRange = (startDate: Date, endDate: Date): string[] => {
   const dateArray: string[] = [];
   const currentDate = new Date(startDate);
+  currentDate.setHours(0, 0, 0, 0);
+  const lastDate = new Date(endDate);
+  lastDate.setHours(0, 0, 0, 0);
   
-  // Bitiş tarihi dahil, bu yüzden <= kullanıyoruz
-  while (currentDate <= endDate) {
-    dateArray.push(new Date(currentDate).toISOString().split('T')[0]); // YYYY-MM-DD formatı
+  // Bitiş tarihi HARİÇ - çıkış günü bir sonraki giriş günü olabilir
+  while (currentDate < lastDate) {
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    dateArray.push(`${year}-${month}-${day}`);
     currentDate.setDate(currentDate.getDate() + 1);
   }
   
   return dateArray;
+};
+
+// Villa dolu tarihlerini güncelleme (sadece giriş-çıkış arası, çıkış günü hariç)
+const updateVillaBookedDates = async (villaId: string, startDate: Date, endDate: Date): Promise<void> => {
+  const dateRange = getDatesInRange(startDate, endDate);
+  if (dateRange.length === 0) return;
+  
+  const villaRef = doc(db, "villalar", villaId);
+  // Firestore arrayUnion max 500 öğe alır, gruplar halinde ekle
+  const chunkSize = 100;
+  for (let i = 0; i < dateRange.length; i += chunkSize) {
+    const chunk = dateRange.slice(i, i + chunkSize);
+    await updateDoc(villaRef, {
+      doluTarihler: arrayUnion(...chunk)
+    });
+  }
 };
 
 // Admin panel için veri çevirici

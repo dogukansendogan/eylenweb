@@ -23,7 +23,7 @@ import { Villa } from '@/firebase/villaService';
 import { createReservation } from '@/firebase/reservationService';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 
 // İndirim kuponu veri tipi
@@ -498,6 +498,7 @@ export default function VillaDetailClient({ villa, id }: VillaDetailClientProps)
     }
 
     if (!createdReservationId) return;
+    if (!checkIn || !checkOut) return;
 
     setIsUploading(true);
 
@@ -509,11 +510,42 @@ export default function VillaDetailClient({ villa, id }: VillaDetailClientProps)
         reader.onerror = error => reject(error);
       });
 
+      // Dekont yüklenince otomatik olarak onaylı duruma al
       const reservationRef = doc(db, "reservations", createdReservationId);
       await updateDoc(reservationRef, {
-        status: "pending_approval",
-        receiptUrl: base64String
+        status: "approved",
+        receiptUrl: base64String,
+        approvedAt: new Date(),
+        autoApproved: true // Otomatik onaylandığını belirt
       });
+
+      // Villa dolu tarihlerini güncelle (çıkış günü hariç)
+      const startD = new Date(checkIn);
+      const endD = new Date(checkOut);
+      startD.setHours(0, 0, 0, 0);
+      endD.setHours(0, 0, 0, 0);
+
+      const datesToBlock: string[] = [];
+      const curr = new Date(startD);
+      while (curr < endD) {
+        const year = curr.getFullYear();
+        const month = String(curr.getMonth() + 1).padStart(2, '0');
+        const day = String(curr.getDate()).padStart(2, '0');
+        datesToBlock.push(`${year}-${month}-${day}`);
+        curr.setDate(curr.getDate() + 1);
+      }
+
+      if (datesToBlock.length > 0 && id) {
+        const villaRef = doc(db, "villalar", id);
+        // 100'lük gruplar halinde ekle (Firestore limiti)
+        const chunkSize = 100;
+        for (let i = 0; i < datesToBlock.length; i += chunkSize) {
+          const chunk = datesToBlock.slice(i, i + chunkSize);
+          await updateDoc(villaRef, {
+            doluTarihler: arrayUnion(...chunk)
+          });
+        }
+      }
 
       setFormSuccess(true);
       setShowPaymentStep(false);
@@ -525,7 +557,7 @@ export default function VillaDetailClient({ villa, id }: VillaDetailClientProps)
       setCheckIn(null);
       setCheckOut(null);
       
-      toast.success("Ödeme bildiriminiz başarıyla iletildi!");
+      toast.success("Dekontunuz alındı! Rezervasyonunuz onaylandı.");
     } catch (error) {
       console.error("Ödeme bildirimi güncellenirken hata:", error);
       toast.error("Ödeme bildirimi iletilirken bir hata oluştu.");
@@ -853,9 +885,9 @@ export default function VillaDetailClient({ villa, id }: VillaDetailClientProps)
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-green-50 text-green-500 rounded-full mb-4 shadow-sm border border-green-100">
                       <CheckIcon className="w-8 h-8" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">Ödeme Bildirimi Alındı</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">Rezervasyonunuz Onaylandı! 🎉</h3>
                     <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                      Rezervasyon talebiniz ve ödeme dekontunuz başarıyla sistemimize ulaşmıştır. Tesis sahibinin onayından sonra onay belgeniz e-posta adresinize gönderilecektir.
+                      Dekontunuz alındı ve rezervasyonunuz <strong className="text-green-600">otomatik olarak onaylandı</strong>. Seçtiğiniz tarihler artık sizin için rezerve edildi.
                     </p>
                     <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-left mb-6 text-xs text-slate-600 space-y-2">
                       <div className="flex justify-between">
@@ -864,7 +896,7 @@ export default function VillaDetailClient({ villa, id }: VillaDetailClientProps)
                       </div>
                       <div className="flex justify-between">
                         <span className="font-semibold text-slate-400">Durum:</span>
-                        <span className="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100/50">Onay Bekliyor</span>
+                        <span className="font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100/50">✓ Onaylandı</span>
                       </div>
                     </div>
                     <button

@@ -159,6 +159,8 @@ export default function VillaCalendar({
         const end = new Date(date);
         let hasBookedDate = false;
         
+        // Çıkış gününü (date) hariç tut - o gün başka birinin giriş günü olabilir
+        // Sadece giriş ve çıkış arasındaki geceleri kontrol et (çıkış günü hariç)
         let currentDate = new Date(start);
         while (currentDate < end) {
           const currentDateStr = format(currentDate, 'yyyy-MM-dd');
@@ -171,6 +173,7 @@ export default function VillaCalendar({
         
         setCheckOut(date);
         
+        // Fiyat hesaplaması: giriş'ten çıkış'a kadar (çıkış günü hariç) geceleri say
         const datesArray = [];
         let curr = new Date(start);
         while (curr < end) {
