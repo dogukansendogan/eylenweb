@@ -9,7 +9,7 @@ Eyleniyoruz Villam'da, modern ve kullanıcı dostu arayüze sahip lüks villa ki
 - **Stil Yönetimi**: [Tailwind CSS](https://tailwindcss.com/)
 - **Veritabanı ve Servisler**: [Firebase](https://firebase.google.com/) (Authentication, Firestore, Storage)
 - **Test Araçları**: [Jest](https://jestjs.io/) & [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) (Birim/Entegrasyon), [Playwright](https://playwright.dev/) (Uçtan Uca E2E)
-- **Diğer Kütüphaneler**: Lucide React / Heroicons (İkonlar), React Datepicker (Tarih Seçimi), React Hot Toast (Bildirimler)
+- **Diğer Kütüphaneler**: Heroicons (İkonlar), React Datepicker (Tarih Seçimi), React Hot Toast (Bildirimler)
 
 ## Özellikler
 

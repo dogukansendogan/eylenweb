@@ -1,5 +1,5 @@
 {
-  "name": "villa-web",
+  "name": "eylenweb",
   "version": "0.1.0",
   "description": "Eyleniyoruz Villam'da lüks villa kiralama platformu",
   "private": true,
@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -22,7 +23,6 @@
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
-    "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0"
   },
   "devDependencies": {
