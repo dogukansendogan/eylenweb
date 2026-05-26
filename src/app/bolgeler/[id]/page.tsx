@@ -7,9 +7,10 @@ import { getLocations, getVillasByLocation } from '@/firebase/locationService';
 import { Villa } from '@/firebase/villaService';
 
 // Metadata oluşturucu
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const locations = await getLocations();
-  const location = locations.find(loc => loc.id === params.id);
+  const location = locations.find(loc => loc.id === resolvedParams.id);
   
   if (!location) {
     return {
@@ -92,12 +93,13 @@ const VillaCard = ({ villa }: { villa: Villa }) => {
   );
 };
 
-export default async function LocationDetailPage({ params }: { params: { id: string } }) {
+export default async function LocationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   // Tüm bölgeleri getir
   const locations = await getLocations();
   
   // URL parametresinden gelen ID'ye göre bölgeyi bul
-  const location = locations.find(loc => loc.id === params.id);
+  const location = locations.find(loc => loc.id === resolvedParams.id);
   
   // Bölge bulunamazsa 404 sayfasına yönlendir
   if (!location) {

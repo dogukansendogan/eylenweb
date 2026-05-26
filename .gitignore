@@ -27,3 +27,15 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.local
+.env.*.local
+
+# build and cache
+dist
+tsconfig.tsbuildinfo
+*.log
+
+# testing outputs
+playwright-report/
+test-results/
+

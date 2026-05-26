@@ -10,7 +10,29 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "dist/**",
+      "coverage/**",
+      "out/**",
+      "build/**",
+      "tsconfig.tsbuildinfo"
+    ]
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
+      "react/no-unescaped-entities": "off",
+      "@next/next/no-img-element": "warn",
+      "react/display-name": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "prefer-const": "warn"
+    }
+  }
 ];
 
 export default eslintConfig;

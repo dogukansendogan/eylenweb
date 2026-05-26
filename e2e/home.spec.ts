@@ -5,36 +5,50 @@ test.describe('Anasayfa ve Navbar Testi', () => {
     await page.goto('/');
     
     // Uygulama logosunun/isminin görünürlüğünü kontrol et
-    const logo = page.locator('text=Eyleniyoruzvillam');
+    const logo = page.locator('nav').getByText('Eyleniyoruzvillam').filter({ visible: true }).first();
     await expect(logo).toBeVisible();
   });
 
   test('navbar linkleri çalışmalı', async ({ page }) => {
     await page.goto('/');
     
+    const clickLink = async (labelText: string) => {
+      const mobileMenuBtn = page.locator('nav button.md\\:hidden');
+      if (await mobileMenuBtn.isVisible()) {
+        await mobileMenuBtn.click();
+        await page.waitForTimeout(400); // Wait for mobile menu transition animation
+      }
+      await page.locator('nav').getByText(labelText).filter({ visible: true }).first().click();
+    };
+
     // Villalar linkine tıkla
-    await page.click('text=Villalar');
+    await clickLink('Villalar');
     await expect(page).toHaveURL(/.*villalar/);
     
     // Hakkımızda linkine tıkla
-    await page.click('text=Hakkımızda');
+    await clickLink('Hakkımızda');
     await expect(page).toHaveURL(/.*hakkimizda/);
     
     // İletişim linkine tıkla
-    await page.click('text=İletişim');
+    await clickLink('İletişim');
     await expect(page).toHaveURL(/.*iletisim/);
     
     // Anasayfaya geri dön
-    await page.locator('nav').locator('text=Eyleniyoruzvillam').click();
+    const logoLink = page.locator('nav').getByText('Eyleniyoruzvillam').filter({ visible: true }).first();
+    if (await logoLink.isHidden()) {
+      const mobileMenuBtn = page.locator('nav button.md\\:hidden');
+      await mobileMenuBtn.click();
+      await page.waitForTimeout(400);
+    }
+    await logoLink.click();
     await expect(page).toHaveURL('/');
   });
 
   test('hero bölümü ve CTA butonları görünür olmalı', async ({ page }) => {
     await page.goto('/');
     
-    // Hero bölümündeki bir başlık veya butonu kontrol et
-    // Genellikle 'Hemen Keşfet' gibi butonlar olur, href kontrolü yapalım
-    const exploreButton = page.locator('a[href="/villalar"]').first();
+    // Görünür olan ilk villalar linki (Nav ya da CTA)
+    const exploreButton = page.locator('a[href="/villalar"]:visible').first();
     await expect(exploreButton).toBeVisible();
   });
 });

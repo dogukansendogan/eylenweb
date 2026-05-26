@@ -3,7 +3,7 @@ import VillaDetailClient from './VillaDetailClient';
 import { getVillaById } from '@/firebase/villaService';
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // Metadata oluşturma (Server Component)
